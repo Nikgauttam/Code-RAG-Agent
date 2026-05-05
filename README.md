@@ -1,6 +1,6 @@
 # CodeRAG — Context-Aware AI Code Agent
 
-[![CI](https://github.com/nikhilgautam/ai-code-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/nikhilgautam/ai-code-agent/actions/workflows/ci.yml)
+[![CI](https://github.com/Nikgauttam/Code-RAG-Agent/actions/workflows/ci.yml/badge.svg)](https://github.com/Nikgauttam/Code-RAG-Agent/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![types](https://img.shields.io/badge/typed-mypy%20strict-brightgreen)
@@ -263,7 +263,8 @@ case (which the previous import resolver got wrong).
 - [x] Streaming `/ask_stream` endpoint (Server-Sent Events)
 - [x] Dockerfile + docker-compose with Ollama
 - [x] BM25 baseline in the eval harness
-- [ ] Larger eval set on real OSS repos (FastAPI, Flask, Requests) — 100+ Q's
+- [x] Flask benchmark — 30 hand-labeled questions, Recall@5=0.667, MRR=0.536
+- [ ] Larger eval set on real OSS repos (Django, FastAPI, Requests) — 100+ Q's
 - [ ] Tree-sitter parsing for multi-language support (JS / TS / Go / Rust)
 - [ ] Replace `IndexFlatIP` with HNSW for >100k chunks
 - [ ] LLM provider abstraction (Anthropic / OpenAI / Ollama / vLLM)
