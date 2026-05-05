@@ -31,7 +31,7 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: pip install mypy==1.14.0 types-requests==2.32.0.20241016
-      - run: mypy --explicit-package-bases --disable-error-code=assignment,arg-type,unused-ignore agent core api.py cli.py main.py
+      - run: mypy --explicit-package-bases --disable-error-code=assignment --disable-error-code=arg-type --disable-error-code=unused-ignore agent core api.py cli.py main.py
 
   test:
     name: Tests (pytest)
