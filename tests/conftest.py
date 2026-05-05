@@ -78,11 +78,13 @@ def package_repo(tmp_path: Path) -> Path:
 # process, so we share a single instance across all integration tests.
 # ------------------------------------------------------------------ #
 
+
 @pytest.fixture(scope="session")
 def shared_embedder():  # type: ignore[no-untyped-def]
     """One CodeEmbedder instance shared across the whole test session."""
     try:
         from core.retrieval.embedder import CodeEmbedder
+
         return CodeEmbedder()
     except Exception:
         return None
@@ -93,6 +95,7 @@ def shared_ranker():  # type: ignore[no-untyped-def]
     """One CrossEncoderRanker instance shared across the whole test session."""
     try:
         from core.rerank.cross_encoder_ranker import CrossEncoderRanker
+
         return CrossEncoderRanker()
     except Exception:
         return None

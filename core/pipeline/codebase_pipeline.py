@@ -168,9 +168,7 @@ class CodebasePipeline:
         embeddings = self.embedder.embed_chunks(self.chunks)
         self._build_vector_store(self.chunks, embeddings)
 
-        file_hashes = {
-            self._rel(p): _file_hash(p) for p in self.symbol_table
-        }
+        file_hashes = {self._rel(p): _file_hash(p) for p in self.symbol_table}
 
         state = IndexState(
             schema_version=self.config.storage.schema_version,
@@ -200,9 +198,7 @@ class CodebasePipeline:
         self.vector_store.load(idx_path)
         self._chunk_by_id = {_stable_int_id(c.stable_id): c for c in state.chunks}
 
-    def _reindex_changed_files(
-        self, meta_path: str, emb_path: str, idx_path: str
-    ) -> None:
+    def _reindex_changed_files(self, meta_path: str, emb_path: str, idx_path: str) -> None:
         # Detect which files changed since the last index by comparing hashes.
         prev_state = self._load_state(meta_path, emb_path, idx_path)
         if prev_state is None:
@@ -227,14 +223,10 @@ class CodebasePipeline:
             print("Index loaded from disk (no changes).")
             return
 
-        print(
-            f"Incremental reindex: +{len(added)} ~{len(modified)} -{len(removed_rels)} files."
-        )
+        print(f"Incremental reindex: +{len(added)} ~{len(modified)} -{len(removed_rels)} files.")
 
         # Drop chunks from removed + modified files.
-        drop_files = set(modified) | {
-            os.path.join(self.repo_path, rel) for rel in removed_rels
-        }
+        drop_files = set(modified) | {os.path.join(self.repo_path, rel) for rel in removed_rels}
         keep_chunks = [c for c in self.chunks if c.file not in drop_files]
         drop_ids = np.array(
             [_stable_int_id(c.stable_id) for c in self.chunks if c.file in drop_files],
@@ -244,17 +236,13 @@ class CodebasePipeline:
             self.vector_store.remove(drop_ids)
 
         # Build new chunks from added + modified files.
-        sub_table = {
-            p: syms for p, syms in self.symbol_table.items() if p in (added + modified)
-        }
+        sub_table = {p: syms for p, syms in self.symbol_table.items() if p in (added + modified)}
         chunker = CodeChunker(sub_table, repo_root=self.repo_path, config=self.config.chunk)
         new_chunks = chunker.chunk_repository()
 
         if new_chunks and self.vector_store is not None:
             new_embeddings = self.embedder.embed_chunks(new_chunks)
-            new_ids = np.array(
-                [_stable_int_id(c.stable_id) for c in new_chunks], dtype=np.int64
-            )
+            new_ids = np.array([_stable_int_id(c.stable_id) for c in new_chunks], dtype=np.int64)
             self.vector_store.add(new_embeddings, new_ids)
 
         self.chunks = keep_chunks + new_chunks
@@ -274,9 +262,7 @@ class CodebasePipeline:
         )
         self._save_state(new_state, meta_path, emb_path, idx_path, write_embeddings=False)
 
-    def _build_vector_store(
-        self, chunks: list[CodeChunk], embeddings: np.ndarray
-    ) -> None:
+    def _build_vector_store(self, chunks: list[CodeChunk], embeddings: np.ndarray) -> None:
         dim = embeddings.shape[1] if embeddings.size else self.embedder.dimension
         self.vector_store = VectorStore(dim)
         if not chunks:
@@ -316,9 +302,7 @@ class CodebasePipeline:
         if self.vector_store is not None:
             self.vector_store.save(idx_path)
 
-    def _load_state(
-        self, meta_path: str, emb_path: str, idx_path: str
-    ) -> IndexState | None:
+    def _load_state(self, meta_path: str, emb_path: str, idx_path: str) -> IndexState | None:
         if not (os.path.exists(meta_path) and os.path.exists(idx_path)):
             return None
         try:
@@ -362,9 +346,7 @@ class CodebasePipeline:
     # Retrieval
     # ------------------------------------------------------------------ #
 
-    def retrieve(
-        self, query: str, top_k: int | None = None
-    ) -> list[tuple[CodeChunk, float]]:
+    def retrieve(self, query: str, top_k: int | None = None) -> list[tuple[CodeChunk, float]]:
         if self.vector_store is None or not self.chunks:
             return []
         k = top_k or self.config.retrieval.top_k
@@ -384,9 +366,7 @@ class CodebasePipeline:
             out.append((chunk, sim))
         return out
 
-    def _hybrid_scored(
-        self, query: str, top_k: int
-    ) -> list[tuple[CodeChunk, float]]:
+    def _hybrid_scored(self, query: str, top_k: int) -> list[tuple[CodeChunk, float]]:
         cfg = self.config.retrieval
         retrieved = self.retrieve(query, top_k=top_k)
         if not retrieved:
@@ -424,9 +404,7 @@ class CodebasePipeline:
             else:
                 entry["score"] = float(entry["score"]) + graph_score
 
-        ordered = sorted(
-            scored.values(), key=lambda x: float(x["score"]), reverse=True
-        )
+        ordered = sorted(scored.values(), key=lambda x: float(x["score"]), reverse=True)
         return [(e["chunk"], float(e["score"])) for e in ordered]  # type: ignore[misc]
 
     # ------------------------------------------------------------------ #
@@ -470,7 +448,9 @@ class CodebasePipeline:
     def _build_qa_prompt(self, query: str, chunks: Iterable[CodeChunk]) -> str:
         parts: list[str] = []
         for c in chunks:
-            header = f"# FILE: {self._rel(c.file)}  ({c.type} {c.qualname})  L{c.lineno}-{c.end_lineno}"
+            header = (
+                f"# FILE: {self._rel(c.file)}  ({c.type} {c.qualname})  L{c.lineno}-{c.end_lineno}"
+            )
             parts.append(f"{header}\n{c.content}")
         context = "\n\n".join(parts)
         return f"""You are a senior software engineer answering a question about a codebase.
@@ -640,9 +620,7 @@ ARCHITECTURAL ROLE:
         except ValueError:
             return file_path
 
-    def _hybrid_with_rerank_scores(
-        self, query: str
-    ) -> list[RerankedChunk]:
+    def _hybrid_with_rerank_scores(self, query: str) -> list[RerankedChunk]:
         cfg = self.config.retrieval
         hybrid = self._hybrid_scored(query, top_k=cfg.top_k)
         if not hybrid:

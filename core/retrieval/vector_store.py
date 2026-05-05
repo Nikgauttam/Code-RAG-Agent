@@ -81,9 +81,7 @@ class VectorStore:
     # Read
     # ------------------------------------------------------------------ #
 
-    def search(
-        self, query_embedding: np.ndarray, top_k: int = 5
-    ) -> tuple[np.ndarray, np.ndarray]:
+    def search(self, query_embedding: np.ndarray, top_k: int = 5) -> tuple[np.ndarray, np.ndarray]:
         if query_embedding.ndim == 1:
             query_embedding = query_embedding.reshape(1, -1)
         query_embedding = query_embedding.astype(np.float32, copy=False)
@@ -128,6 +126,7 @@ class VectorStore:
         self.index = faiss.read_index(path)
         idmap_path = path + ".idmap.npz"
         import os
+
         if os.path.exists(idmap_path):
             data = np.load(idmap_path)
             self._row_to_id = data["row_to_id"].tolist()

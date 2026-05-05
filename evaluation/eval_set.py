@@ -5,7 +5,6 @@ relative to the repo root. A retrieval is correct if at least one of
 the expected files appears in the top-k results.
 """
 
-
 EVAL_SET: list[tuple[str, list[str]]] = [
     (
         "How does the AST parser extract function and class definitions?",

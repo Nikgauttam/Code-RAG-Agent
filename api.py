@@ -110,9 +110,7 @@ async def log_requests(request: Request, call_next):  # type: ignore[no-untyped-
         response = await call_next(request)
     except Exception as exc:
         log.exception("unhandled", error=str(exc))
-        response = JSONResponse(
-            {"error": "internal_error", "request_id": rid}, status_code=500
-        )
+        response = JSONResponse({"error": "internal_error", "request_id": rid}, status_code=500)
     elapsed_ms = (time.perf_counter() - start) * 1000
     response.headers["x-request-id"] = rid
     log.info("request", status=response.status_code, ms=round(elapsed_ms, 2))
@@ -149,9 +147,7 @@ def _require_ready() -> CodeAgent:
 
 @app.get("/healthz", response_model=HealthResponse)
 async def healthz() -> HealthResponse:
-    return HealthResponse(
-        status="ok", repo=state.repo_path, model=state.model, ready=state.ready
-    )
+    return HealthResponse(status="ok", repo=state.repo_path, model=state.model, ready=state.ready)
 
 
 @app.get("/readyz")

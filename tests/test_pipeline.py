@@ -58,8 +58,10 @@ def indexed_pipeline(tmp_path_factory, shared_embedder, shared_ranker):  # type:
 
     cfg = Config(storage=StorageConfig(directory=str(storage)))
     pipeline = CodebasePipeline(
-        str(repo), config=cfg,
-        embedder=shared_embedder, cross_ranker=shared_ranker,
+        str(repo),
+        config=cfg,
+        embedder=shared_embedder,
+        cross_ranker=shared_ranker,
     )
     pipeline.llm.generate = lambda prompt: "STUB"  # type: ignore[method-assign]
     pipeline.index_codebase()
@@ -112,7 +114,9 @@ def test_incremental_reindex_picks_up_new_function(
 
     cfg = Config(storage=StorageConfig(directory=str(storage)))
 
-    p1 = CodebasePipeline(str(repo), config=cfg, embedder=shared_embedder, cross_ranker=shared_ranker)
+    p1 = CodebasePipeline(
+        str(repo), config=cfg, embedder=shared_embedder, cross_ranker=shared_ranker
+    )
     p1.llm.generate = lambda prompt: "STUB"  # type: ignore[method-assign]
     p1.index_codebase()
     ids_before = {c.stable_id for c in p1.chunks}
@@ -120,7 +124,9 @@ def test_incremental_reindex_picks_up_new_function(
     with open(repo / "a.py", "a") as fp:
         fp.write("\ndef brand_new():\n    return 99\n")
 
-    p2 = CodebasePipeline(str(repo), config=cfg, embedder=shared_embedder, cross_ranker=shared_ranker)
+    p2 = CodebasePipeline(
+        str(repo), config=cfg, embedder=shared_embedder, cross_ranker=shared_ranker
+    )
     p2.llm.generate = lambda prompt: "STUB"  # type: ignore[method-assign]
     p2.index_codebase()
 

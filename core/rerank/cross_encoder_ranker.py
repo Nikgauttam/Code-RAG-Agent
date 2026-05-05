@@ -35,21 +35,15 @@ class CrossEncoderRanker:
     ):
         self.config = config or DEFAULT_CONFIG.reranker
         if model_name:
-            self.config = RerankerConfig(
-                model_name=model_name, batch_size=self.config.batch_size
-            )
+            self.config = RerankerConfig(model_name=model_name, batch_size=self.config.batch_size)
         logger.info("loading reranker %s", self.config.model_name)
         self.model = CrossEncoder(self.config.model_name)
 
-    def rerank(
-        self, query: str, chunks: Sequence[CodeChunk]
-    ) -> list[CodeChunk]:
+    def rerank(self, query: str, chunks: Sequence[CodeChunk]) -> list[CodeChunk]:
         scored = self.rerank_with_scores(query, chunks)
         return [r.chunk for r in scored]
 
-    def rerank_with_scores(
-        self, query: str, chunks: Sequence[CodeChunk]
-    ) -> list[RerankedChunk]:
+    def rerank_with_scores(self, query: str, chunks: Sequence[CodeChunk]) -> list[RerankedChunk]:
         if not chunks:
             return []
         pairs = [(query, c.content) for c in chunks]

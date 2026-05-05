@@ -224,9 +224,7 @@ class DependencyGraph:
             for call in syms.calls:
                 if not call.callee or not call.caller_qualname:
                     continue
-                self.symbol_graph.edges.setdefault(call.caller_qualname, []).append(
-                    call.callee
-                )
+                self.symbol_graph.edges.setdefault(call.caller_qualname, []).append(call.callee)
 
     # ------------------------------------------------------------------ #
     # Convenience

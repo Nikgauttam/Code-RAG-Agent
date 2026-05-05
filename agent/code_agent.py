@@ -50,8 +50,11 @@ class CodeAgent:
         cross_ranker: CrossEncoderRanker | None = None,
     ):
         self.pipeline = CodebasePipeline(
-            repo_path, model=model, config=config,
-            embedder=embedder, cross_ranker=cross_ranker,
+            repo_path,
+            model=model,
+            config=config,
+            embedder=embedder,
+            cross_ranker=cross_ranker,
         )
         self.indexed = False
 
@@ -69,7 +72,7 @@ class CodeAgent:
 
         for cmd in COMMANDS:
             if query.lower().startswith(cmd.prefix):
-                argument = query[len(cmd.prefix):].strip()
+                argument = query[len(cmd.prefix) :].strip()
                 # Only dispatch as a command if the argument looks like a
                 # symbol name (no spaces, or at most one dot/underscore separator).
                 # Sentences like "explain how X works" fall through to RAG.

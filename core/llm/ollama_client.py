@@ -178,9 +178,7 @@ class OllamaClient:
 
     async def health(self) -> bool:
         try:
-            resp = await self._async().get(
-                f"{self.config.base_url.rstrip('/')}/api/tags"
-            )
+            resp = await self._async().get(f"{self.config.base_url.rstrip('/')}/api/tags")
         except httpx.HTTPError:
             return False
         return resp.status_code == 200

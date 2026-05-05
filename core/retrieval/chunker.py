@@ -29,16 +29,16 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class CodeChunk:
-    file: str           # absolute path
-    rel_path: str       # repo-relative path
-    type: str           # "function" | "method" | "class"
-    name: str           # short name
-    qualname: str       # fully-qualified name
-    lineno: int         # 1-based start line
-    end_lineno: int     # 1-based end line (inclusive in source)
-    content: str        # source text of the chunk
-    content_hash: str   # sha256 of content
-    stable_id: str      # rel_path::qualname@lineno
+    file: str  # absolute path
+    rel_path: str  # repo-relative path
+    type: str  # "function" | "method" | "class"
+    name: str  # short name
+    qualname: str  # fully-qualified name
+    lineno: int  # 1-based start line
+    end_lineno: int  # 1-based end line (inclusive in source)
+    content: str  # source text of the chunk
+    content_hash: str  # sha256 of content
+    stable_id: str  # rel_path::qualname@lineno
     parent: str | None = None  # parent class qualname for methods
     metadata: dict[str, str] = field(default_factory=dict)
 
@@ -109,11 +109,7 @@ class CodeChunker:
         lines: list[str],
     ) -> CodeChunk:
         body = self._extract_block(lines, sym.lineno, sym.end_lineno)
-        if (
-            self.config.include_class_context
-            and sym.kind == "method"
-            and sym.parent
-        ):
+        if self.config.include_class_context and sym.kind == "method" and sym.parent:
             body = f"# (in class {sym.parent})\n{body}"
 
         return CodeChunk(

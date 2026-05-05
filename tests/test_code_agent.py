@@ -44,8 +44,10 @@ def agent_fixture(tmp_path_factory, shared_embedder, shared_ranker):  # type: ig
 
     cfg = Config(storage=StorageConfig(directory=str(storage)))
     ag = CodeAgent(
-        str(repo), config=cfg,
-        embedder=shared_embedder, cross_ranker=shared_ranker,
+        str(repo),
+        config=cfg,
+        embedder=shared_embedder,
+        cross_ranker=shared_ranker,
     )
     ag.pipeline.llm.generate = lambda p: "STUB_LLM"  # type: ignore[method-assign]
     ag.setup()
