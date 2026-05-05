@@ -1,18 +1,28 @@
 # CodeRAG — Context-Aware AI Code Agent
 
-[![CI](https://github.com/your-username/ai-code-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/ai-code-agent/actions/workflows/ci.yml)
+[![CI](https://github.com/nikhilgautam/ai-code-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/nikhilgautam/ai-code-agent/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![types](https://img.shields.io/badge/typed-mypy%20strict-brightgreen)
 
-A retrieval-augmented assistant that answers natural-language questions about a
-Python codebase. It combines **semantic retrieval** (sentence-transformer
-embeddings + FAISS), a **structural dependency graph** (AST imports + true
-caller→callee call edges), and a **cross-encoder reranker** before grounding
-the answer in a local LLM (Ollama).
+A local, privacy-first RAG pipeline that answers natural-language questions about any Python codebase. Combines **semantic retrieval** (sentence-transformer embeddings + FAISS), a **structural dependency graph** (AST imports + caller→callee call edges), and a **cross-encoder reranker** before grounding the answer in a local LLM (Ollama). Zero API cost. Data never leaves your machine.
 
-The goal: don't just find lexically similar code — find code that is
-*structurally* relevant, the way a senior engineer would.
+## Benchmark Results
+
+Evaluated on [pallets/flask](https://github.com/pallets/flask) — 30 hand-labeled questions, 1,624 chunks across 83 files:
+
+| Strategy | Recall@5 | Recall@10 | MRR | p95 ms |
+|----------|:--------:|:---------:|:---:|:------:|
+| BM25 (baseline) | 0.500 | 0.633 | 0.252 | <1 |
+| Semantic only | 0.633 | 0.667 | 0.437 | 19 |
+| Hybrid | 0.633 | 0.667 | 0.437 | 6 |
+| **Hybrid + Rerank** ✅ | **0.667** | **0.667** | **0.536** | 143 |
+
+> Hybrid+rerank achieves **+112% MRR over BM25** and **+23% over semantic-only**.
+
+Reproduce: `python -m evaluation.run_eval --repo /tmp/flask_eval --eval flask`
+
+The goal: don't just find lexically similar code — find code that is *structurally* relevant, the way a senior engineer would.
 
 ## What's new in v0.2
 

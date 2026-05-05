@@ -21,3 +21,8 @@ storage/*.pkl
 .vscode/
 .idea/
 .DS_Store
+
+# Generated / personal files (not for repo)
+generate_interview_doc.py
+*.pdf
+/tmp/

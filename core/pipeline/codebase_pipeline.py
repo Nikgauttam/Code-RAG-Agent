@@ -429,9 +429,18 @@ class CodebasePipeline:
         except LLMError as exc:
             answer = f"[LLM unavailable: {exc}]"
 
+        # Deduplicate sources while preserving rank order
+        seen: set[str] = set()
+        sources: list[str] = []
+        for c in reranked:
+            rel = self._rel(c.file)
+            if rel not in seen:
+                seen.add(rel)
+                sources.append(rel)
+
         return {
             "answer": answer,
-            "sources": [self._rel(c.file) for c in reranked],
+            "sources": sources,
         }
 
     def stream_answer(self, query: str):
