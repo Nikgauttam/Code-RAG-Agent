@@ -1,0 +1,35 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: code-agent-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 5
+
+  api:
+    build: .
+    container_name: code-agent-api
+    depends_on:
+      ollama:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    environment:
+      CODE_AGENT_REPO: /repo
+      CODE_AGENT_MODEL: ${CODE_AGENT_MODEL:-llama3}
+      CODE_AGENT_LLM_URL: http://ollama:11434
+      CODE_AGENT_STORAGE: /app/storage
+    volumes:
+      - ${REPO_PATH:-./}:/repo:ro
+      - agent-storage:/app/storage
+
+volumes:
+  ollama-data:
+  agent-storage:

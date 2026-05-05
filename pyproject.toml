@@ -1,0 +1,119 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-code-agent"
+version = "0.2.0"
+description = "Context-aware AI code agent: hybrid retrieval over a code repository (AST graph + dense embeddings + cross-encoder rerank)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Nikhil Gautam" }]
+keywords = ["rag", "code-search", "embeddings", "faiss", "ast", "llm"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "fastapi==0.128.0",
+    "uvicorn[standard]==0.32.1",
+    "pydantic==2.12.5",
+    "sentence-transformers==5.2.0",
+    "faiss-cpu==1.13.2",
+    "numpy>=1.26,<3.0",
+    "httpx==0.28.1",
+    "structlog==24.4.0",
+    "rich==13.9.4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-cov==6.0.0",
+    "pytest-asyncio==0.25.0",
+    "ruff==0.9.1",
+    "mypy==1.14.0",
+    "types-requests==2.32.0.20241016",
+    "rank-bm25==0.2.2",
+]
+
+[project.scripts]
+ai-code-agent = "cli:main"
+
+[tool.setuptools]
+py-modules = ["api", "cli", "main"]
+
+[tool.setuptools.packages.find]
+include = ["agent*", "core*", "evaluation*"]
+exclude = ["tests*", "storage*", "docs*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["storage", ".venv"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "C4",   # comprehensions
+    "SIM",  # simplifications
+    "RUF",  # ruff-specific
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # function calls in default args (FastAPI uses these)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B", "E402"]
+"evaluation/*" = ["E402"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_reexport = true
+disallow_untyped_decorators = false
+exclude = ["storage/", "build/", ".venv/", "evaluation/run_eval.py"]
+
+[[tool.mypy.overrides]]
+module = [
+    "faiss",
+    "faiss.*",
+    "sentence_transformers",
+    "sentence_transformers.*",
+    "rank_bm25",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q --strict-markers --tb=short"
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["agent", "core"]
+omit = ["*/tests/*", "*/__init__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]

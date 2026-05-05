@@ -1,0 +1,12 @@
+# Runtime dependencies. Pinned for reproducibility.
+# For dev tooling (ruff, mypy, pytest, ...) install with:
+#   pip install -e ".[dev]"
+fastapi==0.128.0
+uvicorn[standard]==0.32.1
+pydantic==2.12.5
+sentence-transformers==5.2.0
+faiss-cpu==1.13.2
+numpy>=1.26,<3.0
+httpx==0.28.1
+structlog==24.4.0
+rich==13.9.4
