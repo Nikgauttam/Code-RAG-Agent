@@ -230,7 +230,7 @@ python -m evaluation.run_eval --repo /tmp/flask_eval --eval flask
 
 ### Q: What problem does this project solve?
 
-**A:** ChatGPT and Claude can't answer questions about your private codebase — they've never seen it. Even if you paste code, you can't fit a 50,000-line repo into a context window, and the LLM gets confused by irrelevant code. My project indexes any Python repo locally and lets you ask plain-English questions. It automatically finds the right code using semantic search + graph traversal, reranks the results, and generates a grounded answer using a local LLM — no API cost, no data leaves your machine.
+**A:** General AI chatbots like ChatGPT can't answer questions about your private codebase — they've never seen it. Even if you paste code, you can't fit a 50,000-line repo into a context window, and the LLM gets confused by irrelevant code. My project indexes any Python repo locally and lets you ask plain-English questions. It automatically finds the right code using semantic search + graph traversal, reranks the results, and generates a grounded answer using a local LLM — no API cost, no data leaves your machine.
 
 ---
 
