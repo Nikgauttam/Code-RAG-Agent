@@ -22,6 +22,9 @@ storage/*.pkl
 .idea/
 .DS_Store
 
+# AI assistant internals (not for repo)
+.claude/
+
 # Generated / personal files (not for repo)
 generate_interview_doc.py
 *.pdf

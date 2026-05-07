@@ -281,7 +281,7 @@ case (which the previous import resolver got wrong).
 - [ ] Larger eval set on real OSS repos (Django, FastAPI, Requests) — 100+ Q's
 - [ ] Tree-sitter parsing for multi-language support (JS / TS / Go / Rust)
 - [ ] Replace `IndexFlatIP` with HNSW for >100k chunks
-- [ ] LLM provider abstraction (Anthropic / OpenAI / Ollama / vLLM)
+- [ ] LLM provider abstraction (OpenAI / Ollama / vLLM / Groq)
 - [ ] VS Code extension calling the API
 
 ---
