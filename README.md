@@ -7,6 +7,33 @@
 
 A local, privacy-first RAG pipeline that answers natural-language questions about any Python codebase. Combines **semantic retrieval** (sentence-transformer embeddings + FAISS), a **structural dependency graph** (AST imports + caller→callee call edges), and a **cross-encoder reranker** before grounding the answer in a local LLM (Ollama). Zero API cost. Data never leaves your machine.
 
+## Demo
+
+```
+$ python cli.py --repo /path/to/flask
+
+Indexing codebase...
+Index built: 1624 chunks across 83 files.
+
+>>> how does Flask handle sessions?
+
+╭─────────────────────────── Answer ────────────────────────────╮
+│ Flask handles sessions via the SecureCookieSessionInterface   │
+│ (sessions.py L284). Sessions are stored as signed cookies     │
+│ using itsdangerous. The open_session() method deserializes    │
+│ the cookie on each request (L330-L352), and save_session()    │
+│ re-signs and sets the cookie in the response (L354-L395).     │
+│ The signing key is the app's SECRET_KEY config value.         │
+╰───────────────────────────────────────────────────────────────╯
+Sources:
+  • src/flask/sessions.py
+  • src/flask/ctx.py
+  • src/flask/app.py
+
+>>> explain SecureCookieSessionInterface
+>>> find usages of url_for
+```
+
 ## Benchmark Results
 
 Evaluated on [pallets/flask](https://github.com/pallets/flask) — 30 hand-labeled questions, 1,624 chunks across 83 files:
@@ -24,31 +51,18 @@ Reproduce: `python -m evaluation.run_eval --repo /tmp/flask_eval --eval flask`
 
 The goal: don't just find lexically similar code — find code that is *structurally* relevant, the way a senior engineer would.
 
-## What's new in v0.2
+## Features
 
-The pipeline was rebuilt for correctness, scale, and production use:
-
-- **True call graph.** Symbol graph is now `caller_qualname → [callee, ...]`
-  with enclosing-scope tracking, not the previous `file → all_calls_in_file`.
-- **Real import resolution.** Imports resolve against full module paths
-  (relative imports too) instead of basename matching, so two `utils.py`
-  files in different packages no longer cross-wire.
-- **Per-method chunking** with class-context headers, stable chunk IDs
-  (`rel/path::QualName@line`), and SHA-256 content hashes.
-- **Incremental reindexing.** File-hash diffing + `IndexIDMap2` lets a
-  warm reindex re-embed only the chunks that actually changed.
-- **No more pickle.** Cache is JSON manifest + `.npz` embeddings — safe to
-  load from untrusted disks.
-- **Production API.** `/healthz` + `/readyz`, structured JSON logs with
-  per-request IDs, streaming `/ask_stream` (SSE), CORS, lifespan-managed
-  startup, sync work offloaded to threadpool.
-- **Hardened LLM client.** httpx-based, configurable timeout, retry budget,
-  sync + async + streaming surfaces, typed `LLMError` / `OllamaUnavailable`.
-- **Central `Config`** dataclass with full env-var override (no more
-  scattered magic constants).
-- **Docker Compose** brings up Ollama + the API together with one command.
-- **CI workflow**: ruff + mypy `--strict` + pytest across Python 3.10/3.11/3.12,
-  plus a Docker build job.
+- **Hybrid retrieval** — semantic vector search (FAISS) + AST call/import graph traversal, weighted 70/30
+- **Cross-encoder reranking** — ms-marco reranker re-orders top-20 candidates for precision (+23% MRR over semantic-only)
+- **AST-based parsing** — extracts functions, classes, methods, imports, and caller→callee edges with fully qualified names
+- **Incremental indexing** — SHA-256 content hashing means second run loads from disk instantly (no re-embedding)
+- **Grounded generation** — LLM can only answer from retrieved code chunks, cannot hallucinate functions that don't exist
+- **Fully local** — Llama3 via Ollama, no API key, no internet required, your code never leaves your machine
+- **Production API** — FastAPI with `/healthz`, `/readyz`, `/ask`, `/ask_stream` (Server-Sent Events)
+- **Interactive CLI** — Rich-formatted REPL with explain / trace / find-usages commands
+- **Docker Compose** — one command brings up Ollama + API together
+- **CI/CD** — ruff + mypy + pytest matrix across Python 3.10 / 3.11 / 3.12
 
 ---
 
@@ -122,7 +136,7 @@ ollama pull llama3
 ollama serve
 
 # 3. Index a repo + start interactive CLI
-python main.py --repo /path/to/your/repo
+python cli.py --repo /path/to/your/repo
 
 # 4. Or run as an HTTP API
 CODE_AGENT_REPO=/path/to/your/repo uvicorn api:app --reload
@@ -269,6 +283,15 @@ case (which the previous import resolver got wrong).
 - [ ] Replace `IndexFlatIP` with HNSW for >100k chunks
 - [ ] LLM provider abstraction (Anthropic / OpenAI / Ollama / vLLM)
 - [ ] VS Code extension calling the API
+
+---
+
+## Author
+
+**Nikhil Gautam** — B.Tech Computer Science, 2025
+Built as a portfolio project demonstrating hybrid RAG, AST-based code intelligence, and production ML engineering.
+
+- GitHub: [@Nikgauttam](https://github.com/Nikgauttam)
 
 ---
 
